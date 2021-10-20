@@ -28,6 +28,12 @@ namespace RESTfulAPI
         {
 
             services.AddControllers();
+            services.AddCors(o => {
+                o.AddPolicy("AllowAll", builder =>
+                    builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RESTfulAPI", Version = "v1" });
@@ -42,6 +48,8 @@ namespace RESTfulAPI
                 app.UseDeveloperExceptionPage();
             }
             app.UseSwagger();
+
+            app.UseCors("AllowAll");
 
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RESTfulAPI v1"));
 
