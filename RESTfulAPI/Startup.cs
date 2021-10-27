@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using RESTfulAPI.Configurations;
 using RESTfulAPI.Data;
+using RESTfulAPI.IRepository;
+using RESTfulAPI.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,12 +44,15 @@ namespace RESTfulAPI
 
             services.AddAutoMapper(typeof(MapperInitilizer));
 
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RESTfulAPI", Version = "v1" });
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore) ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
