@@ -12,6 +12,7 @@ using RESTfulAPI.Configurations;
 using RESTfulAPI.Data;
 using RESTfulAPI.IRepository;
 using RESTfulAPI.Repository;
+using RESTfulAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,10 @@ namespace RESTfulAPI
                  options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
              );
 
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
+
             services.AddCors(o => {
                 o.AddPolicy("AllowAll", builder =>
                     builder.AllowAnyOrigin()
@@ -45,6 +50,8 @@ namespace RESTfulAPI
             services.AddAutoMapper(typeof(MapperInitilizer));
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IAuthManager, AuthManager>();
 
             services.AddSwaggerGen(c =>
             {
@@ -71,6 +78,8 @@ namespace RESTfulAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
