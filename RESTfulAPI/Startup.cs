@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -35,7 +36,10 @@ namespace RESTfulAPI
             services.AddDbContext<DatabaseContext>(options =>
                  options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
              );
-
+            services.AddMemoryCache();
+           // services.ConfigureRateLimiting();
+           // services.AddHttpContextAccessor();
+            services.ConfigureHttpCacheHeaders();
             services.AddAuthentication();
             services.ConfigureIdentity();
             services.ConfigureJWT(Configuration);
@@ -58,7 +62,12 @@ namespace RESTfulAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RESTfulAPI", Version = "v1" });
             });
 
-            services.AddControllers().AddNewtonsoftJson(options =>
+            services.AddControllers(config => {
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile
+                {
+                    Duration = 120
+                });
+            }).AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore) ;
         }
 
@@ -73,9 +82,20 @@ namespace RESTfulAPI
 
             app.UseCors("AllowAll");
 
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RESTfulAPI v1"));
+            app.UseSwaggerUI(c => {
+                string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
+                c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "RESTful API"); 
+            });
+
+            app.ConfigureExceptionHandler();
 
             app.UseHttpsRedirection();
+
+            app.UseResponseCaching();
+
+            app.UseHttpCacheHeaders();
+
+           // app.UseIpRateLimiting();
 
             app.UseRouting();
 
