@@ -33,19 +33,11 @@ namespace RESTfulAPI.Controllers
             [HttpGet]
             [ProducesResponseType(StatusCodes.Status200OK)]
             [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-            public async Task<IActionResult> GetHotels()
+            public async Task<IActionResult> GetHotels([FromQuery] RequestParams requestParams)
             {
-                try
-                {
-                    var hotels = await _unitOfWork.Hotels.GetAll();
+                    var hotels = await _unitOfWork.Hotels.GetPagedList(requestParams);
                     var results = _mapper.Map<IList<HotelDTO>>(hotels);
                     return Ok(results);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetHotels)}");
-                    return StatusCode(500, "Internal Server Error. Please Try Again Later.");
-                }
             }
 
             [HttpGet("{id:int}", Name = "GetHotel")]
@@ -53,17 +45,9 @@ namespace RESTfulAPI.Controllers
             [ProducesResponseType(StatusCodes.Status500InternalServerError)]
             public async Task<IActionResult> GetHotel(int id)
             {
-                try
-                {
                     var hotel = await _unitOfWork.Hotels.Get(q => q.Id == id, new List<string> { "Country" });
                     var result = _mapper.Map<HotelDTO>(hotel);
                     return Ok(result);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Something Went Wrong in the {nameof(GetHotel)}");
-                    return StatusCode(500, "Internal Server Error. Please Try Again Later.");
-                }
             }
 
             [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = "Administrator")]
@@ -78,22 +62,13 @@ namespace RESTfulAPI.Controllers
                     _logger.LogError($"Something Went Wrong in the {nameof(CreateHotel)}");
                     return BadRequest(ModelState);
                 }
-
-                try
-                {
                     var hotel = _mapper.Map<Hotel>(hotelDTO);
                     await _unitOfWork.Hotels.Insert(hotel);
                     await _unitOfWork.Save();
                     return CreatedAtRoute("GetHotel", new {id = hotel.Id}, hotel);
-                }
-                catch (Exception ex)
-                {
-                     _logger.LogError(ex, $"Something Went Wrong in the {nameof(CreateHotel)}");
-                     return StatusCode(500, "Internal Server Error. Please Try Again Later.");
-                }
             }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -105,30 +80,19 @@ namespace RESTfulAPI.Controllers
                 _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateHotel)}");
                 return BadRequest(ModelState);
             }
-
-            try
-            {
                 var hotel = await _unitOfWork.Hotels.Get(q => q.Id == id);
                 if (hotel == null)
                 {
                     _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateHotel)}");
                     return BadRequest("Submitted data is invalid");
                 }
-
                 _mapper.Map(hotelDTO, hotel);
                 _unitOfWork.Hotels.Update(hotel);
                 await _unitOfWork.Save();
-
                 return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something Went Wrong in the {nameof(UpdateHotel)}");
-                return StatusCode(500, "Internal Server Error. Please Try Again Later.");
-            }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
