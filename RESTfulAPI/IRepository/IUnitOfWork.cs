@@ -10,6 +10,7 @@ namespace RESTfulAPI.IRepository
     {
         IGenericRepository<Country> Countries { get; }
         IGenericRepository<Hotel> Hotels { get; }
+        IGenericRepository<CarModel> Cars { get; }
         Task Save();
     }
 }

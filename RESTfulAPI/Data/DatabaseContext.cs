@@ -16,6 +16,7 @@ namespace RESTfulAPI.Data
         }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
+        public DbSet<CarModel> Cars { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
