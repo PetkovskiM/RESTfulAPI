@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,10 @@ namespace RESTfulAPI.Controllers
     public class CarController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<CountryController> _logger;
+        private readonly ILogger<CarController> _logger;
         private readonly IMapper _mapper;
 
-        public CarController(IUnitOfWork unitOfWork, ILogger<CountryController> logger, IMapper mapper)
+        public CarController(IUnitOfWork unitOfWork, ILogger<CarController> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -29,6 +30,8 @@ namespace RESTfulAPI.Controllers
         }
 
         [HttpGet]
+        [HttpCacheExpiration(MaxAge =120)]
+        [HttpCacheValidation(MustRevalidate = true)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCars([FromQuery] RequestParams requestParams)
@@ -58,7 +61,7 @@ namespace RESTfulAPI.Controllers
             return Ok(result);
         }
 
-       // [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -76,7 +79,7 @@ namespace RESTfulAPI.Controllers
             return CreatedAtRoute("GetCar", new { id = car.Id }, car);
         }
 
-       // [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -102,7 +105,7 @@ namespace RESTfulAPI.Controllers
             return NoContent();
         }
 
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

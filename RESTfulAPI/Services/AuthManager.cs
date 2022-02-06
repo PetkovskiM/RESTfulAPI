@@ -79,7 +79,7 @@ namespace RESTfulAPI.Services
         public async Task<bool> ValidateUser(LoginUserDTO userDTO)
         {
             _user = await _userManager.FindByNameAsync(userDTO.Email);
-            var validPassword = await _userManager.CheckPasswordAsync(_user, userDTO.Password);
+            var validPassword = await _userManager.CheckPasswordAsync(_user, userDTO.Password); 
             return (_user != null && validPassword);
         }
     }

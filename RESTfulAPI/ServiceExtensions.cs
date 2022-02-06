@@ -72,21 +72,21 @@ namespace RESTfulAPI
             });
         }
 
-        public static void ConfigureHttpCacheHeaders(this IServiceCollection services)
-        {
-            services.AddResponseCaching();
-            services.AddHttpCacheHeaders(
-                (expirationOpt) =>
-                {
-                    expirationOpt.MaxAge = 120;
-                    expirationOpt.CacheLocation = CacheLocation.Private;
-                },
-                (validationOpt) =>
-                {
-                    validationOpt.MustRevalidate = true;
-                }
-                );
-        }
+        //public static void ConfigureHttpCacheHeaders(this IServiceCollection services)
+        //{
+        //    services.AddResponseCaching();
+        //    services.AddHttpCacheHeaders(
+        //        (expirationOpt) =>
+        //        {
+        //            expirationOpt.MaxAge = 120;
+        //            expirationOpt.CacheLocation = CacheLocation.Private;
+        //        },
+        //        (validationOpt) =>
+        //        {
+        //            validationOpt.MustRevalidate = true;
+        //        }
+        //        );
+        //}
 
         //public static void ConfigureRateLimiting(this IServiceCollection services)
         //{

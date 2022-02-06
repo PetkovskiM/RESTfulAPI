@@ -30,16 +30,18 @@ namespace RESTfulAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        // This method gets called by the runtime. Use this method to add services to the container. 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DatabaseContext>(options =>
                  options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
              );
-            services.AddMemoryCache();
-           // services.ConfigureRateLimiting();
-           // services.AddHttpContextAccessor();
-            services.ConfigureHttpCacheHeaders();
+            //services.AddMemoryCache();
+            // services.ConfigureRateLimiting();
+            // services.AddHttpContextAccessor();
+            //services.ConfigureHttpCacheHeaders();
+            services.AddResponseCaching();
+            services.AddHttpCacheHeaders();
             services.AddAuthentication();
             services.ConfigureIdentity();
             services.ConfigureJWT(Configuration);
